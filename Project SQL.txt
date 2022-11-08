@@ -1,0 +1,44 @@
+CREATE TABLE users (
+   user_id INTEGER PRIMARY KEY NOT NULL,
+   first_name VARCHAR(100),
+   last_name VARCHAR(100),
+   id_number VARCHAR(50) UNIQUE,
+   balance DECIMAL(16,2)
+);
+
+CREATE TABLE agents (
+   agent_id INTEGER PRIMARY KEY NOT NULL,
+   name VARCHAR(100),
+   password VARCHAR(100)
+);
+
+CREATE TABLE agent_access (
+	row_id INTEGER PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	allowed_ip VARCHAR(100),
+	agent_id INTEGER,
+	FOREIGN KEY (agent_id) REFERENCES agents(agent_id)
+);
+
+CREATE TABLE transactions (
+	system_transaction_id BIGINT PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	user_id INTEGER,
+	agent_transaction_id VARCHAR(100) UNIQUE,
+	agent_id INTEGER,
+	amount DECIMAL (16,2),
+	transaction_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (agent_id) REFERENCES agents(agent_id),
+	FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE payments (
+   payment_id INTEGER PRIMARY KEY NOT NULL,
+   user_id INTEGER,
+   amount DECIMAL (16,2),
+   transaction_id BIGINT,
+   request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   code SMALLINT NOT NULL,
+   FOREIGN KEY (user_id) REFERENCES users(user_id),
+	FOREIGN KEY (transaction_id) REFERENCES transactions(system_transaction_id),
+	CHECK (code>=0 AND code <3)
+);
+
